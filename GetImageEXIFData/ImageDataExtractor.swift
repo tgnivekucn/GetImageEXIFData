@@ -18,13 +18,14 @@ class ImageDataExtractor {
         }
     }
 
-    func getAssetGPSLocation(asset: PHAsset) {
+    func getAssetGPSLocation(asset: PHAsset, callback: (() -> Void)? = nil) {
         getImageLocation(asset: asset) { locationCoordinate2D in
             if let location = locationCoordinate2D {
                 print("Latitude: \(location.latitude), Longitude: \(location.longitude)")
             } else {
                 print("Location data not available for this image.")
             }
+            callback?()
         }
     }
 

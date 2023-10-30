@@ -9,6 +9,11 @@ import UIKit
 import Photos
 
 class PhotoLibraryManager {
+    var duration: Double = 0 {
+        didSet {
+            print("test11 current duration: \(duration)")
+        }
+    }
 
     func checkPhotoLibraryPermission(completion: @escaping (Bool) -> Void) {
         let status = PHPhotoLibrary.authorizationStatus()
@@ -31,6 +36,7 @@ class PhotoLibraryManager {
     }
 
     func fetchPhotos() {
+        var start = Date()
         // Ensure we have permission to access the photo library
         checkPhotoLibraryPermission { [weak self] hasPermission in
             guard hasPermission, let self = self else { return }
@@ -41,8 +47,13 @@ class PhotoLibraryManager {
             fetchOptions.sortDescriptors = sortOrder
             
             let assets = PHAsset.fetchAssets(with: .image, options: fetchOptions)
-            assets.enumerateObjects { (asset, index, stop) in
-                ImageDataExtractor.shared.getAssetGPSLocation(asset: asset)
+            assets.enumerateObjects { [weak self] (asset, index, stop) in
+                guard let self = self else { return }
+                ImageDataExtractor.shared.getAssetGPSLocation(asset: asset) { [weak self] in
+                    guard let self = self else { return }
+                    self.duration = Date().timeIntervalSince(start)
+                    print("test11 current index: \(index)")
+                }
             }
         }
     }
